@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+.DS_STORE/
+incllude/
+.sconsign.dblite

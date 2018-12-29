@@ -1,0 +1,9 @@
+Import('env')
+
+env = env.Clone()
+
+env.Install(Dir('#').abspath + "/include/mq_http_sdk", [Glob('*.h'), Glob('*.hpp')])
+
+mq_sdk_objs = env.Object([Glob('*.cpp')])
+target = env.StaticLibrary(target = 'mqcpp', source = [mq_sdk_objs])
+env.Install(Dir('#').abspath + "/lib", target)
