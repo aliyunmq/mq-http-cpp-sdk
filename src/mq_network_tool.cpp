@@ -63,6 +63,7 @@ void MQNetworkTool::SendRequest(const std::string& endpoint,
             curl_easy_setopt( curl, CURLOPT_URL, url.c_str());
             curl_easy_setopt( curl, CURLOPT_HTTPHEADER, header);
             curl_easy_setopt( curl, CURLOPT_BUFFERSIZE, BUFFER_SIZE);
+            curl_easy_setopt( curl, CURLOPT_USERAGENT, AGENT);
             if (!isLongConnection)
                 curl_easy_setopt( curl, CURLOPT_FORBID_REUSE, 1);
             curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, &Stream_write);

@@ -51,6 +51,8 @@ const char* const CODE = "Code";
 const char* const ERROR_MESSAGE = "ErrorMessage";
 const char* const ERROR_CODE = "ErrorCode";
 
+const char* const AGENT = "mq-cpp-sdk/1.0.0(curl)";
+
 const std::string EMPTY = "";
 
 }
