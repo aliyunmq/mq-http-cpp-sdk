@@ -21,10 +21,8 @@
 *.smod
 
 # Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+libmqcpp.a
+libmqcpp.lib
 
 # Executables
 *.exe
@@ -32,5 +30,6 @@
 *.app
 
 .DS_STORE/
+.DS_STORE
 include/
 .sconsign.dblite
