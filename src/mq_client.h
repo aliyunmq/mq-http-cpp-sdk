@@ -1,4 +1,4 @@
-// Copyright (C) 2015, Alibaba Cloud Computing
+// Copyright (C) 2019, Alibaba Cloud Computing
 
 #ifndef MQ_CLIENT_H
 #define MQ_CLIENT_H
@@ -28,14 +28,17 @@ namespace sdk
 
 class MQConsumer;
 class MQProducer;
+class MQTransProducer;
 class MQClient;
 
 #ifdef __APPLE__
 typedef std::shared_ptr<MQConsumer> MQConsumerPtr;
 typedef std::shared_ptr<MQProducer> MQProducerPtr;
+typedef std::shared_ptr<MQTransProducer> MQTransProducerPtr;
 #else
 typedef std::tr1::shared_ptr<MQConsumer> MQConsumerPtr;
 typedef std::tr1::shared_ptr<MQProducer> MQProducerPtr;
+typedef std::tr1::shared_ptr<MQTransProducer> MQTransProducerPtr;
 #endif
 
 /*
@@ -143,14 +146,32 @@ public:
      */
     MQProducerPtr getProducerRef(const std::string& topicName);
 
-    /* init MQProduer instance for publish message
+    /* 
+     * init MQProduer instance for publish message
      *
-     * @param topicName: the topic name
      * @param instanceId: the instance id
+     * @param topicName: the topic name
      *
      * @return: the inited MQProducer instance
      */
     MQProducerPtr getProducerRef(const std::string& instanceId, const std::string& topicName);
+
+    /*
+     * int MQTransProducer instance
+     *
+     * @param topicName: the topic name
+     * @param groupId: the group id
+     */
+    MQTransProducerPtr getTransProducerRef(const std::string& topicName, const std::string& groupId);
+
+    /*
+     * int MQTransProducer instance
+     *
+     * @param instanceId: the instance id
+     * @param topicName: the topic name
+     * @param groupId: the group id
+     */
+    MQTransProducerPtr getTransProducerRef(const std::string& instanceId, const std::string& topicName, const std::string& groupId);
 
     const std::string& getEndpoint() const
     {
@@ -357,6 +378,14 @@ public:
                         const std::string& messageTag,
                         PublishMessageResponse& resp);
 
+    /* publish message
+     *
+     * @param topicMessage: the message
+     * @param resp: the Response containing MessageId and BodyMD5
+     */
+    void publishMessage(TopicMessage& topicMessage,
+                        PublishMessageResponse& resp);
+
     friend class MQClient;
 
 protected:
@@ -376,6 +405,67 @@ protected:
     std::string mAccessKey;
     std::string mStsToken;
     MQConnectionToolPtr mMQConnTool;
+};
+
+/*
+ *
+ * CAUTION:
+ *     Make sure to catch Exception when calling any function
+ *     throws MQServerException when the request is failed.
+ *     throws MQExceptionBase for client errors
+ */
+class MQTransProducer : public MQProducer
+{
+    public:
+
+        /* 
+         * consume half message to check transaction status, three choice: {@link #commit(String)} , {@link #rollback(String)}
+         * or do nothing (after 10s will get the message again).
+         *
+         * @param numOfMessages: the batch size, value: 1~16
+         * @param waitSeconds: value: 0~30s, 0 is not long polling.
+         *     if no message to consume, the request will block for
+         *         "waitSeconds" util timeout or any message coming.
+         * @param messages: received messages
+         */
+        void consumeHalfMessage(const int32_t numOfMessages,
+                const int32_t waitSeconds,
+                std::vector<Message>& messages);
+
+        /* 
+         * commit transaction msg, the consumer will receive the msg.
+         *
+         * @param receiptHandle: the msg handle
+         */
+        void commit(const std::string& receiptHandle,
+                AckMessageResponse& resp);
+
+        /* 
+         * rollback transaction msg, the consumer will not receive the msg.
+         *
+         * @param receiptHandle: the msg handle
+         */
+        void rollback(const std::string& receiptHandle,
+                AckMessageResponse& resp);
+
+
+        const std::string& getGroupId()
+        {
+            return mGroupId;
+        }
+
+        friend class MQClient;
+    protected:
+        MQTransProducer(const std::string& instanceId,
+                const std::string& topicName,
+                const std::string& groupId,
+                const std::string& endpoint,
+                const std::string& accessId,
+                const std::string& accessKey,
+                const std::string& stsToken,
+                MQConnectionToolPtr mqConnTool);
+    protected:
+        std::string mGroupId;
 };
 
 }

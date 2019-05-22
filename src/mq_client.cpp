@@ -153,6 +153,18 @@ MQProducerPtr MQClient::getProducerRef(const std::string& topicName)
         mAccessKey, mStsToken, mMQConnTool));
 }
 
+MQTransProducerPtr MQClient::getTransProducerRef(const std::string& topicName, const std::string& groupId)
+{
+    return MQTransProducerPtr(new MQTransProducer(EMPTY, topicName, groupId, mEndPoint, mAccessId, 
+                mAccessKey, mStsToken, mMQConnTool));
+}
+
+
+MQTransProducerPtr MQClient::getTransProducerRef(const std::string& instanceId, const std::string& topicName, const std::string& groupId)
+{
+    return MQTransProducerPtr(new MQTransProducer(instanceId, topicName, groupId, mEndPoint, mAccessId, 
+                mAccessKey, mStsToken, mMQConnTool));
+}
 
 MQConsumer::MQConsumer(const std::string& instanceId,
       const std::string& topicName,
@@ -251,4 +263,62 @@ void MQProducer::publishMessage(const std::string& messageBody,
     PublishMessageRequest req(mInstanceId, mTopicName, messageBody, messageTag);
     MQClient::sendRequest(req, resp, mEndPoint, mAccessId,
         mAccessKey, mStsToken, mMQConnTool);
+}
+
+void MQProducer::publishMessage(TopicMessage& topicMessage, PublishMessageResponse& resp)
+{
+    PublishMessageRequest req(mInstanceId, mTopicName, topicMessage.mMessageBody, topicMessage.mMessageTag);
+    MQUtils::mapToString(topicMessage.mProperties, req.mProperties);
+    MQClient::sendRequest(req, resp, mEndPoint, mAccessId,
+        mAccessKey, mStsToken, mMQConnTool);
+}
+
+MQTransProducer::MQTransProducer(const std::string& instanceId,
+             const std::string& topicName,
+             const std::string& groupId,
+             const std::string& endpoint,
+             const std::string& accessId,
+             const std::string& accessKey,
+             const std::string& stsToken,
+             MQConnectionToolPtr mqConnTool)
+    : MQProducer(instanceId, topicName, endpoint, accessId, accessKey, stsToken, mqConnTool) 
+    , mGroupId(groupId)
+{
+}
+
+void MQTransProducer::consumeHalfMessage(const int32_t numOfMessages,
+        const int32_t waitSeconds,
+        std::vector<Message>& messages)
+{
+    ConsumeMessageRequest req(mInstanceId, mTopicName, mGroupId, numOfMessages, EMPTY, waitSeconds);
+    req.setTransConsume();
+
+    ConsumeMessageResponse resp(messages);
+    MQClient::sendRequest(req, resp, mEndPoint, mAccessId,
+            mAccessKey, mStsToken, mMQConnTool);
+}
+
+void MQTransProducer::commit(const std::string& receiptHandle,
+        AckMessageResponse& resp)
+{
+    std::vector<std::string> receiptHandles;
+    receiptHandles.push_back(receiptHandle);
+
+    AckMessageRequest req(mInstanceId, mTopicName, mGroupId, receiptHandles);
+    req.setTransCommit();
+    MQClient::sendRequest(req, resp, mEndPoint, mAccessId,
+        mAccessKey, mStsToken, mMQConnTool);
+}
+
+void MQTransProducer::rollback(const std::string& receiptHandle,
+                AckMessageResponse& resp)
+{
+    std::vector<std::string> receiptHandles;
+    receiptHandles.push_back(receiptHandle);
+
+    AckMessageRequest req(mInstanceId, mTopicName, mGroupId, receiptHandles);
+    req.setTransRollback();
+    MQClient::sendRequest(req, resp, mEndPoint, mAccessId,
+        mAccessKey, mStsToken, mMQConnTool);
+
 }

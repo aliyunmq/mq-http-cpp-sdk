@@ -1,6 +1,7 @@
 #include "mq_utils.h"
 
 #include <iomanip>
+#include "mq_exception.h"
 
 using namespace std;
 using namespace mq::http::sdk;
@@ -60,4 +61,58 @@ std::string MQUtils::toJsonStr(const std::map<std::string, std::string>& param)
     }
     str += "}";
     return str;
+}
+
+bool MQUtils::checkContainSpecialChar(const std::string& str)
+{
+    return str.find(":") != std::string::npos
+        || str.find("|") != std::string::npos
+        || str.find("'") != std::string::npos
+        || str.find("&") != std::string::npos
+        || str.find("\"") != std::string::npos
+        || str.find("<") != std::string::npos
+        || str.find(">") != std::string::npos;
+}
+
+void MQUtils::mapToString(const std::map<std::string, std::string>& param, std::string& o)
+{
+    std::map<std::string, std::string>::const_reverse_iterator lastIter = param.rbegin();
+    for (std::map<std::string, std::string>::const_iterator iter = param.begin();
+            iter != param.end(); iter++)
+    {
+        if (MQUtils::checkContainSpecialChar(iter->first) || MQUtils::checkContainSpecialChar(iter->second))
+        {
+            std::string errorMsg = "Message property[";
+            errorMsg += iter->first;
+            errorMsg += ":";
+            errorMsg += iter->second;
+            errorMsg += "] can't contains: & \" ' < > : |";
+            MQ_THROW(MQExceptionBase, errorMsg);
+        }
+        o += iter->first;
+        o += ":";
+        o += iter->second;
+        o += "|";
+    }
+}
+
+void MQUtils::stringToMap(const std::string& param, std::map<std::string, std::string>& map)
+{
+    if (param.length() <= 0)
+    {
+        return;
+    }
+    size_t kvStart = 0, kvEnd;
+    while ((kvEnd = param.find ("|", kvStart)) != string::npos)
+    {
+        std::string kv = param.substr(kvStart, kvEnd - kvStart);
+        size_t index = kv.find(":");
+        map[kv.substr(0, index)] = kv.substr(index + 1, kv.size());
+
+        kvStart = kvEnd + 1;
+        if (kvStart >= param.size())
+        {
+            break;
+        }
+    }
 }

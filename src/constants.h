@@ -1,4 +1,4 @@
-// Copyright (C) 2015, Alibaba Cloud Computing
+// Copyright (C) 2019, Alibaba Cloud Computing
 
 #ifndef MQ_CONSTANTS_H
 #define MQ_CONSTANTS_H
@@ -47,11 +47,16 @@ const char* const PUBLISH_TIME = "PublishTime";
 const char* const FIRST_CONSUME_TIME = "FirstConsumeTime";
 const char* const NEXT_CONSUME_TIME = "NextConsumeTime";
 const char* const CONSUMED_TIMES = "ConsumedTimes";
+const char* const MESSAGE_PROPERTIES = "Properties";
 const char* const CODE = "Code";
 const char* const ERROR_MESSAGE = "ErrorMessage";
 const char* const ERROR_CODE = "ErrorCode";
 
-const char* const AGENT = "mq-cpp-sdk/1.0.0(curl)";
+const char* const MESSAGE_PROP_KEY = "KEYS";
+const char* const MESSAGE_PROP_TRANS_CHECK = "__TransCheckT";
+const char* const MESSAGE_PROP_TIMER = "__STARTDELIVERTIME";
+
+const char* const AGENT = "mq-cpp-sdk/1.0.1(curl)";
 
 const std::string EMPTY = "";
 

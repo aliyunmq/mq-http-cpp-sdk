@@ -1,4 +1,4 @@
-// Copyright (C) 2015, Alibaba Cloud Computing
+// Copyright (C) 2019, Alibaba Cloud Computing
 
 #ifndef MQ_SDK_UTILS_H
 #define MQ_SDK_UTILS_H
@@ -265,6 +265,9 @@ public:
     static std::string getLastNodeFromURL(const std::string& inputURL);
     static std::string escapeJson(const std::string &s);
     static std::string toJsonStr(const std::map<std::string, std::string>& param);
+    static bool checkContainSpecialChar(const std::string &str);
+    static void mapToString(const std::map<std::string, std::string>& param, std::string& o);
+    static void stringToMap(const std::string& param, std::map<std::string, std::string>& map);
 };
 
 }

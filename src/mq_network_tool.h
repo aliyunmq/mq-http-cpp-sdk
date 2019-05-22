@@ -1,4 +1,4 @@
-// Copyright (C) 2015, Alibaba Cloud Computing
+// Copyright (C) 2019, Alibaba Cloud Computing
 
 #ifndef MQ_SDK_NETWORK_H
 #define MQ_SDK_NETWORK_H

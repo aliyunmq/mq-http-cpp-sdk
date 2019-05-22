@@ -1,4 +1,4 @@
-// Copyright (C) 2015, Alibaba Cloud Computing
+// Copyright (C) 2019, Alibaba Cloud Computing
 
 #ifndef MQ_PROTOCOL_H
 #define MQ_PROTOCOL_H
@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include "pugixml.hpp"
 #include "mq_utils.h"
+#include "constants.h"
 
 namespace mq
 {
@@ -33,6 +34,55 @@ struct AckMessageFailedItem
 };
 
 class ConsumeMessageResponse;
+
+class TopicMessage
+{
+    public:
+        TopicMessage(const std::string& messageBody)
+            : mMessageBody(messageBody), mMessageTag("")
+        {
+        }
+
+        TopicMessage(const std::string& messageBody,
+                const std::string& messageTag)
+            : mMessageBody(messageBody), mMessageTag(messageTag)
+        {
+        }
+
+        void putProperty(const std::string key, const std::string value)
+        {
+            if (key.length() == 0 || value.length() == 0)
+            {
+                return;
+            }
+            mProperties[key] = value;
+        }
+
+        void setStartDeliverTime(int64_t time)
+        {
+            mProperties[MESSAGE_PROP_TIMER] = std::to_string(time);
+        }
+
+        void setTransCheckImmunityTime(int32_t seconds)
+        {
+            mProperties[MESSAGE_PROP_TRANS_CHECK] = std::to_string(seconds);
+        }
+
+        void setMessageKey(std::string k)
+        {
+            if (k.length() == 0)
+            {
+                return;
+            }
+            mProperties[MESSAGE_PROP_KEY] = k;
+        }
+
+        friend class MQProducer;
+    protected:
+        const std::string mMessageBody;
+        const std::string mMessageTag;
+        std::map<std::string, std::string> mProperties;
+};
 
 class Message
 {
@@ -95,6 +145,59 @@ public:
         return mConsumedTimes;
     }
 
+    const std::map<std::string, std::string>& getProperties()
+    {
+        return mProperties;
+    }
+
+    const std::string& getProperty(const std::string& key)
+    {
+		std::map<std::string, std::string>::iterator iter = mProperties.find(key);
+        if (iter != mProperties.end())
+        {
+            return iter->second;
+        }
+        return EMPTY;
+    }
+
+    const std::string getPropertiesAsString()
+    {
+        std::string o = "";
+        for(std::map<std::string, std::string>::const_iterator it = mProperties.begin();
+                    it != mProperties.end(); ++it)
+        {
+                o += it->first;
+                o += ":";
+                o += it->second;
+                o += ";";
+        }
+        return o;
+    }
+
+    const std::string& getMessageKey()
+    {
+        return getProperty(MESSAGE_PROP_KEY);
+    }
+
+    const int32_t getTransCheckImmunityTime()
+    {
+        std::string value = getProperty(MESSAGE_PROP_TRANS_CHECK);
+        if (value.length() == 0) 
+        {
+            return 0;
+        }
+        return atoi(value.c_str());
+    }
+
+    int64_t getStartDeliverTime()
+    {
+        std::string value = getProperty(MESSAGE_PROP_TIMER);
+        if (value.length() == 0)
+        {
+            return 0;
+        }
+        return atoll(value.c_str());
+    }
 
     friend class ConsumeMessageResponse;
 
@@ -107,6 +210,7 @@ protected:
     std::string mMessageBody;
     std::string mMessageBodyMD5;
     std::string mMessageTag;
+    std::map<std::string, std::string> mProperties;
     int64_t mPublishTime;
     int64_t mNextConsumeTime;
     int64_t mFirstConsumeTime;
@@ -270,6 +374,14 @@ public:
         return "/topics/" + *mTopicName + "/messages";
     }
 
+    friend class MQTransProducer;
+
+protected:
+    void setTransConsume()
+    {
+        this->mTrans = "pop";
+    }
+
 protected:
     const std::string* mInstanceId;
     const std::string* mTopicName;
@@ -277,6 +389,7 @@ protected:
     const std::string* mConsumer;
     const int32_t mNumOfMessages;
     const int32_t mWaitSeconds;
+    std::string mTrans;
 };
 
 class ConsumeMessageResponse : public Response
@@ -312,11 +425,25 @@ public:
         return "/topics/" + *mTopicName + "/messages";
     }
 
+    friend class MQTransProducer;
+
+protected:
+    void setTransCommit()
+    {
+        this->mTrans = "commit";
+    }
+
+    void setTransRollback()
+    {
+        this->mTrans = "rollback";
+    }
+
 protected:
     const std::string* mInstanceId;
     const std::string* mTopicName;
     const std::string* mConsumer;
     const std::vector<std::string>* mReceiptHandles;
+    std::string mTrans;
 };
 
 class AckMessageResponse : public Response
@@ -339,10 +466,6 @@ class PublishMessageRequest : public Request
 public:
     PublishMessageRequest(const std::string& instanceId,
                           const std::string& topicName,
-                          const std::string& messageBody);
-
-    PublishMessageRequest(const std::string& instanceId,
-                          const std::string& topicName,
                           const std::string& messageBody,
                           const std::string& messageTag);
 
@@ -359,11 +482,14 @@ public:
         return "/topics/" + *mTopicName + "/messages";
     }
 
+    friend class MQProducer;
+
 protected:
     const std::string* mInstanceId;
     const std::string* mTopicName;
     const std::string* mMessageBody;
     const std::string* mMessageTag;
+    std::string mProperties;
 };
 
 class PublishMessageResponse : public Response
@@ -385,9 +511,18 @@ public:
         return mMessageBodyMD5;
     }
 
+    /**
+     * only transaction msg.
+     */
+    std::string getReceiptHandle()
+    {
+        return mReceiptHandle;
+    }
+
 protected:
     std::string mMessageId;
     std::string mMessageBodyMD5;
+    std::string mReceiptHandle;
 };
 
 }

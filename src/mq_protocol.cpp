@@ -59,6 +59,10 @@ void Message::initFromXml(const xml_node& messageNode)
         {
             mConsumedTimes = atoi(iterNode.text().get());
         }
+        else if (0 == strcmp(MESSAGE_PROPERTIES, name))
+        {
+            MQUtils::stringToMap(iterNode.text().get(), mProperties);
+        }
 
         iterNode = iterNode.next_sibling();
     }
@@ -165,6 +169,10 @@ std::string ConsumeMessageRequest::getQueryString()
     {
         queryStr += "&tag=" + *mMessageTag;
     }
+    if (mTrans != "")
+    {
+        queryStr += "&trans=" + mTrans;
+    }
     return queryStr;
 }
 
@@ -224,6 +232,10 @@ std::string AckMessageRequest::getQueryString()
     if (mInstanceId != NULL && *mInstanceId != "")
     {
         queryStr += "&ns=" + *mInstanceId;
+    }
+    if (mTrans != "")
+    {
+        queryStr += "&trans=" + mTrans;
     }
     return queryStr;
 }
@@ -338,13 +350,18 @@ const string& PublishMessageRequest::generateRequestBody()
     pugi::xml_node node = doc.append_child("Message");
     node.append_attribute("xmlns") = MQ_XML_NAMESPACE_V1;
 
-    node.append_child("MessageBody").append_child(
+    node.append_child(MESSAGE_BODY).append_child(
         pugi::node_pcdata).set_value(mMessageBody->c_str());
 
     if (mMessageTag != NULL && *mMessageTag != "")
     {
-        node.append_child("MessageTag").append_child(
+        node.append_child(MESSAGE_TAG).append_child(
             pugi::node_pcdata).set_value(mMessageTag->c_str());
+    }
+    if (mProperties != "")
+    {
+        node.append_child(MESSAGE_PROPERTIES).append_child(
+            pugi::node_pcdata).set_value(mProperties.c_str());
     }
 
     ostringstream os;
@@ -387,6 +404,10 @@ void PublishMessageResponse::parseResponse()
         else if (0 == strcmp(MESSAGE_BODY_MD5, name))
         {
             mMessageBodyMD5 = iterNode.text().get();
+        }
+        else if (0 == strcmp(RECEIPT_HANDLE, name))
+        {
+            mReceiptHandle = iterNode.text().get();
         }
 
         iterNode = iterNode.next_sibling();
