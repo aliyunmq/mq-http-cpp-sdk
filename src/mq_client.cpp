@@ -125,13 +125,19 @@ void MQClient::signRequest(Request& req,
 
 MQConsumerPtr MQClient::getConsumerRef(const std::string& instanceId, const std::string& topicName, const std::string& consumer, const std::string& messageTag)
 {
-    return MQConsumerPtr(new MQConsumer(instanceId, topicName, consumer, messageTag, mEndPoint, mAccessId,
+    std::string encodeTag;
+    MQUtils::urlEncode(messageTag, encodeTag);
+
+    return MQConsumerPtr(new MQConsumer(instanceId, topicName, consumer, encodeTag, mEndPoint, mAccessId,
         mAccessKey, mStsToken, mMQConnTool));
 }
 
 MQConsumerPtr MQClient::getConsumerRef(const std::string& topicName, const std::string& consumer, const std::string& messageTag)
 {
-    return MQConsumerPtr(new MQConsumer(EMPTY, topicName, consumer, messageTag, mEndPoint, mAccessId,
+    std::string encodeTag;
+    MQUtils::urlEncode(messageTag, encodeTag);
+
+    return MQConsumerPtr(new MQConsumer(EMPTY, topicName, consumer, encodeTag, mEndPoint, mAccessId,
         mAccessKey, mStsToken, mMQConnTool));
 }
 
@@ -196,11 +202,34 @@ void MQConsumer::consumeMessage(const int32_t numOfMessages,
         mAccessKey, mStsToken, mMQConnTool);
 }
 
+void MQConsumer::consumeMessageOrderly(const int32_t numOfMessages,
+                                std::vector<Message>& messages)
+{
+    ConsumeMessageRequest req(mInstanceId, mTopicName, mConsumer, numOfMessages, mMessageTag, -1);
+    req.setOrderConsume();
+
+    ConsumeMessageResponse resp(messages);
+    MQClient::sendRequest(req, resp, mEndPoint, mAccessId,
+        mAccessKey, mStsToken, mMQConnTool);
+}
+
 void MQConsumer::consumeMessage(const int32_t numOfMessages,
                                 const int32_t waitSeconds,
                                 std::vector<Message>& messages)
 {
     ConsumeMessageRequest req(mInstanceId, mTopicName, mConsumer, numOfMessages, mMessageTag, waitSeconds);
+    ConsumeMessageResponse resp(messages);
+    MQClient::sendRequest(req, resp, mEndPoint, mAccessId,
+        mAccessKey, mStsToken, mMQConnTool);
+}
+
+void MQConsumer::consumeMessageOrderly(const int32_t numOfMessages,
+                                const int32_t waitSeconds,
+                                std::vector<Message>& messages)
+{
+    ConsumeMessageRequest req(mInstanceId, mTopicName, mConsumer, numOfMessages, mMessageTag, waitSeconds);
+    req.setOrderConsume();
+
     ConsumeMessageResponse resp(messages);
     MQClient::sendRequest(req, resp, mEndPoint, mAccessId,
         mAccessKey, mStsToken, mMQConnTool);

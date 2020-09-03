@@ -266,10 +266,23 @@ public:
     /* consume messages,
      *    the message is changed to be reconsumed,if not AckMessage in 5 minute. 
      *
-     * @param numOfMessages: the batch size
+     * @param numOfMessages: the batch size,1~16
      * @param messages: received messages
      */
     void consumeMessage(const int32_t numOfMessages,
+                             std::vector<Message>& messages);
+
+    /* 
+     * sync consume message from topic orderly.
+     *
+     * Next messages will be consumed if all of same shard are acked. Otherwise, same messages will be consumed again after 60 seconds.
+     * Attention: the topic should be order topic created at console, if not, mq could not keep the order feature.
+     * This interface is suitable for globally order and partitionally order messages, and could be used in multi-thread scenes.
+     *
+     * @param numOfMessages: the batch size,1~16
+     * @param messages: received messages, may contains several shard's messages, the messages of one shard are ordered.
+     */
+    void consumeMessageOrderly(const int32_t numOfMessages,
                              std::vector<Message>& messages);
 
     /* consume messages,
@@ -282,6 +295,24 @@ public:
      * @param messages: received messages
      */
     void consumeMessage(const int32_t numOfMessages,
+                             const int32_t waitSeconds,
+                             std::vector<Message>& messages);
+
+    /* 
+     *
+     * sync consume message from topic orderly.
+     *
+     * Next messages will be consumed if all of same shard are acked. Otherwise, same messages will be consumed again after 60 seconds.
+     * Attention: the topic should be order topic created at console, if not, mq could not keep the order feature.
+     * This interface is suitable for globally order and partitionally order messages, and could be used in multi-thread scenes.
+     *
+     * @param numOfMessages: the batch size,1~16
+     * @param waitSeconds:1~30
+     *     if no message to consume, the request will block for
+     *         "waitSeconds" util timeout or any message coming.
+     * @param messages: received messages, may contains several shard's messages, the messages of one shard are ordered.
+     */
+    void consumeMessageOrderly(const int32_t numOfMessages,
                              const int32_t waitSeconds,
                              std::vector<Message>& messages);
 

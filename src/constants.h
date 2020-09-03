@@ -55,8 +55,9 @@ const char* const ERROR_CODE = "ErrorCode";
 const char* const MESSAGE_PROP_KEY = "KEYS";
 const char* const MESSAGE_PROP_TRANS_CHECK = "__TransCheckT";
 const char* const MESSAGE_PROP_TIMER = "__STARTDELIVERTIME";
+const char* const MESSAGE_PROP_SHARDING = "__SHARDINGKEY";
 
-const char* const AGENT = "mq-cpp-sdk/1.0.1(curl)";
+const char* const AGENT = "mq-cpp-sdk/1.0.3(curl)";
 
 const std::string EMPTY = "";
 

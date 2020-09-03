@@ -58,11 +58,21 @@ class TopicMessage
             mProperties[key] = value;
         }
 
+        /**
+         * Timer message, msg will be consumed after this time.
+         *
+         * @param time
+         */
         void setStartDeliverTime(int64_t time)
         {
             mProperties[MESSAGE_PROP_TIMER] = std::to_string(time);
         }
 
+        /**
+         * Transaction message, the first checked time.
+         *
+         * @param seconds
+         */
         void setTransCheckImmunityTime(int32_t seconds)
         {
             mProperties[MESSAGE_PROP_TRANS_CHECK] = std::to_string(seconds);
@@ -75,6 +85,20 @@ class TopicMessage
                 return;
             }
             mProperties[MESSAGE_PROP_KEY] = k;
+        }
+
+        /**
+         * Order message, select the shard according to key
+         *
+         * @param key: sharding key
+         */
+        void setShardingKey(std::string key)
+        {
+            if (key.length() == 0)
+            {
+                return;
+            }
+            mProperties[MESSAGE_PROP_SHARDING] = key;
         }
 
         friend class MQProducer;
@@ -130,6 +154,9 @@ public:
         return mPublishTime;
     }
 
+    /**
+     * it's meaningless for orderly consume
+     */
     int64_t getFirstConsumeTime()
     {
         return mFirstConsumeTime;
@@ -197,6 +224,11 @@ public:
             return 0;
         }
         return atoll(value.c_str());
+    }
+
+    const std::string& getShardingKey()
+    {
+        return getProperty(MESSAGE_PROP_SHARDING);
     }
 
     friend class ConsumeMessageResponse;
@@ -375,11 +407,17 @@ public:
     }
 
     friend class MQTransProducer;
+    friend class MQConsumer;
 
 protected:
     void setTransConsume()
     {
         this->mTrans = "pop";
+    }
+
+    void setOrderConsume()
+    {
+        this->mTrans = "order";
     }
 
 protected:

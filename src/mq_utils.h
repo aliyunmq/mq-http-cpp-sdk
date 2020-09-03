@@ -268,6 +268,7 @@ public:
     static bool checkContainSpecialChar(const std::string &str);
     static void mapToString(const std::map<std::string, std::string>& param, std::string& o);
     static void stringToMap(const std::string& param, std::map<std::string, std::string>& map);
+    static void urlEncode(const std::string& input, std::string& output);
 };
 
 }

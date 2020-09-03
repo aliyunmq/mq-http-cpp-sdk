@@ -30,4 +30,16 @@ Aliyun MQ Console: https://ons.console.aliyun.com
 
 [Transaction Message](https://github.com/aliyunmq/mq-http-samples/tree/101-dev/cpp/trans_producer.cpp)
 
-Note for 1.0.1: Http consumer only support timer msg(less than 3 days), no matter the msg is produced from http or tcp protocal.
+### V1.0.3 Samples
+
+[Publish Message](https://github.com/aliyunmq/mq-http-samples/tree/103-dev/cpp/producer.cpp)
+
+[Consume Message](https://github.com/aliyunmq/mq-http-samples/tree/103-dev/cpp/consumer.cpp)
+
+[Transaction Message](https://github.com/aliyunmq/mq-http-samples/tree/103-dev/cpp/trans_producer.cpp)
+
+[Publish Order Message](https://github.com/aliyunmq/mq-http-samples/tree/103-dev/cpp/order_producer.cpp)
+
+[Consume Order Message](https://github.com/aliyunmq/mq-http-samples/tree/103-dev/cpp/order_consumer.cpp)
+
+Note: Http consumer only support timer msg(less than 3 days), no matter the msg is produced from http or tcp protocol.

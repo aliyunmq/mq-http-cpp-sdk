@@ -116,3 +116,31 @@ void MQUtils::stringToMap(const std::string& param, std::map<std::string, std::s
         }
     }
 }
+
+unsigned char ToHex(unsigned char x) 
+{ 
+    return  x > 9 ? x + 55 : x + 48; 
+}
+
+void MQUtils::urlEncode(const std::string& input, std::string& output)
+{
+    size_t length = input.length();
+    for (size_t i = 0; i < length; i++)
+    {
+        if (isalnum((unsigned char)input[i]) || 
+                (input[i] == '-') ||
+                (input[i] == '_') || 
+                (input[i] == '.') || 
+                (input[i] == '~'))
+            output += input[i];
+        else if (input[i] == ' ')
+            output += "+";
+        else
+        {
+            output += '%';
+            output += ToHex((unsigned char)input[i] >> 4);
+            output += ToHex((unsigned char)input[i] % 16);
+        }
+    }
+}
+
