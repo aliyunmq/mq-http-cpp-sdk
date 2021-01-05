@@ -16,30 +16,31 @@ Aliyun MQ Console: https://ons.console.aliyun.com
 3. now you could find the headers in the "include" dir and library in "lib" dir
 4. copy "include" and "lib" to your project
 
-## Sample
 
-### V1.0.0 Samples
+## Note
+1. Http consumer only support timer msg (less than 3 days), no matter the msg is produced from http or tcp protocol.
+2. Order is only supported at special server cluster.
+
+## Sample (github)
+
 [Publish Message](https://github.com/aliyunmq/mq-http-samples/blob/master/cpp/producer.cpp)
 
 [Consume Message](https://github.com/aliyunmq/mq-http-samples/blob/master/cpp/consumer.cpp)
 
-### V1.0.1 Samples
-[Publish Message](https://github.com/aliyunmq/mq-http-samples/tree/101-dev/cpp/producer.cpp)
+[Transaction Message](https://github.com/aliyunmq/mq-http-samples/blob/master/cpp/trans_producer.cpp)
 
-[Consume Message](https://github.com/aliyunmq/mq-http-samples/tree/101-dev/cpp/consumer.cpp)
+[Publish Order Message](https://github.com/aliyunmq/mq-http-samples/blob/master/cpp/order_producer.cpp)
 
-[Transaction Message](https://github.com/aliyunmq/mq-http-samples/tree/101-dev/cpp/trans_producer.cpp)
+[Consume Order Message](https://github.com/aliyunmq/mq-http-samples/blob/master/cpp/order_consumer.cpp)
 
-### V1.0.3 Samples
+### Sample (code.aliyun.com)
 
-[Publish Message](https://github.com/aliyunmq/mq-http-samples/tree/103-dev/cpp/producer.cpp)
+[Publish Message](https://code.aliyun.com/aliware_rocketmq/mq-http-samples/blob/master/cpp/producer.cpp)
 
-[Consume Message](https://github.com/aliyunmq/mq-http-samples/tree/103-dev/cpp/consumer.cpp)
+[Consume Message](https://code.aliyun.com/aliware_rocketmq/mq-http-samples/blob/master/cpp/consumer.cpp)
 
-[Transaction Message](https://github.com/aliyunmq/mq-http-samples/tree/103-dev/cpp/trans_producer.cpp)
+[Transaction Message](https://code.aliyun.com/aliware_rocketmq/mq-http-samples/blob/master/cpp/trans_producer.cpp)
 
-[Publish Order Message](https://github.com/aliyunmq/mq-http-samples/tree/103-dev/cpp/order_producer.cpp)
+[Publish Order Message](https://code.aliyun.com/aliware_rocketmq/mq-http-samples/blob/master/cpp/order_producer.cpp)
 
-[Consume Order Message](https://github.com/aliyunmq/mq-http-samples/tree/103-dev/cpp/order_consumer.cpp)
-
-Note: Http consumer only support timer msg(less than 3 days), no matter the msg is produced from http or tcp protocol.
+[Consume Order Message](https://code.aliyun.com/aliware_rocketmq/mq-http-samples/blob/master/cpp/order_consumer.cpp)
