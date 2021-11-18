@@ -1,0 +1,12 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "sdk",
+    srcs = glob(["src/*.cpp"]),
+    hdrs = glob( ["src/*.h", "src/*.hpp"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_curl//:curl",
+        "@openssl//:ssl",
+    ],
+)
