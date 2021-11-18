@@ -1,0 +1,30 @@
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
+
+pkg_tar(
+    name = "sdk-hdrs",
+    package_dir = "/include",
+    srcs = [
+        "//:sdk_hdrs",
+    ],
+    mode = "0644",
+    stamp = 1,
+)
+
+pkg_tar(
+    name = "sdk-lib",
+    package_dir = "/lib",
+    srcs = [
+        "//:sdk",
+    ],
+    mode = "0644",
+    stamp = 1,
+)
+
+pkg_tar(
+    name = "mq-http-sdk-dist",
+    extension = "tar.gz",
+    deps = [
+        ":sdk-hdrs",
+        ":sdk-lib",
+    ],
+)

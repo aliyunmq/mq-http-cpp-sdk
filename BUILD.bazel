@@ -1,11 +1,27 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "sdk_hdrs",
+    srcs = glob(["src/*.h"]),
+)
+
+cc_library(
+    name = "api",
+    hdrs = [
+        ":sdk_hdrs"
+    ],
+    strip_include_prefix = "//src",
+)
+
 cc_library(
     name = "sdk",
     srcs = glob(["src/*.cpp"]),
-    hdrs = glob( ["src/*.h", "src/*.hpp"]),
+    hdrs = glob(["src/*.hpp"]),
     visibility = ["//visibility:public"],
     deps = [
+        ":api",
         "@com_github_curl//:curl",
         "@openssl//:ssl",
     ],
